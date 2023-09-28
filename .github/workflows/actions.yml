@@ -1,17 +1,37 @@
----name: actions2
+name: actions2
 
-on: push
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
 
 jobs:
-  super-lint:
-    name: Lint code base
+  build_and_deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Run Super-Linter
-        uses: github/super-linter@v4
-        env:
-          DEFAULT_BRANCH: main
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: set up node environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+
+      - name: install dependancies
+        run: npm ci
+
+      - name: create react
+        run: npm run build
+
+      - name: deploy
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: build
+
+
+
+# https://github.com/JamesIves/github-pages-deploy-action
